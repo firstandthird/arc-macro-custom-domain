@@ -25,7 +25,9 @@ module.exports = function(arc, cloudformation, stage) {
     Properties: {
       BasePath: '',
       DomainName: domainName,
-      Stage: stage,
+      Stage: {
+        Ref: `${restId}.Stage`
+      },
       RestApiId: {
         Ref: restId
       }
