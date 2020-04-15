@@ -1,28 +1,16 @@
-/*
-@customDomain
-zoneName robofs.com
-productionCertArn {arn}
-productionDomain robofs.com
-stagingCertArn {arn}
-stagingDomain stage.robofs.com
-*/
-
 module.exports = function(arc, cloudformation, stage) {
-  const params = {};
-  console.log('called');
-  console.log('called');
-  console.log('called');
-  console.log(arc);
-  //only on stage
-  if (stage !== 'staging' || !arc.customDomain) {
+  if (!arc.customDomain) {
     return cloudformation;
   }
-
-  const domainName = process.env.ARC_DOMAIN || arc.customDomain[0];
-  const route53Host = arc.customDomain[1];
-  const certArn = arc.customDomain[2];
+  const params = {};
+  arc.customDomain.forEach(e => {
+    params[e[0]] = e[1];
+  });
+  const domainName = process.env.ARC_DOMAIN || (
+    stage === 'staging' ? params.stagingDomain : params.productionDomain);
+  const route53Host = params.zoneName;
+  const certArn = stage === 'staging' ? params.stagingCertArn : params.productionCertArn;
   const restId = Object.keys(cloudformation.Resources)[0]; //probably could make this better
-
   cloudformation.Resources.ApiGatewayDomain = {
     Type: 'AWS::ApiGateway::DomainName',
     Properties: {
