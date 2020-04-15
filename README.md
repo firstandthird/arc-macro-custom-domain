@@ -1,6 +1,5 @@
 # arc-macro-custom-domain
 
-- only works on staging (for now)
 - can override domain with `ARC_DOMAIN`
 
 ## Example .arc
@@ -15,7 +14,9 @@ get /
 arc-macro-custom-domain
 
 @customDomain
-{domain}
-{route53 host}
-{certArn}
+zoneName {route53 host}
+productionCertArn {production arn}
+productionDomain {production domain}
+stagingCertArn {staging arn}
+stagingDomain {staging domain}
 ```

@@ -1,4 +1,18 @@
+/*
+@customDomain
+zoneName robofs.com
+productionCertArn {arn}
+productionDomain robofs.com
+stagingCertArn {arn}
+stagingDomain stage.robofs.com
+*/
+
 module.exports = function(arc, cloudformation, stage) {
+  const params = {};
+  console.log('called');
+  console.log('called');
+  console.log('called');
+  console.log(arc);
   //only on stage
   if (stage !== 'staging' || !arc.customDomain) {
     return cloudformation;
