@@ -1,14 +1,21 @@
 module.exports = function(arc, cloudformation, stage) {
-  //only on stage
-  if (stage !== 'staging' || !arc.customDomain) {
+  if (!arc.customDomain) {
     return cloudformation;
   }
-
-  const domainName = process.env.ARC_DOMAIN || arc.customDomain[0];
-  const route53Host = arc.customDomain[1];
-  const certArn = arc.customDomain[2];
+  const params = {};
+  arc.customDomain.forEach(e => {
+    params[e[0]] = e[1];
+  });
+  const domainName = process.env.ARC_DOMAIN || (
+    stage === 'staging' ? params.stagingDomain : params.productionDomain);
+  // abort if no domainName was specified:
+  if (!domainName) {
+    console.log('WARNING: no domain name was specified for arc-macro-custom-domain!! (did you forget to set something?)');
+    return cloudformation;
+  }
+  const route53Host = params.zoneName;
+  const certArn = stage === 'staging' ? params.stagingCertArn : params.productionCertArn;
   const restId = Object.keys(cloudformation.Resources)[0]; //probably could make this better
-
   cloudformation.Resources.ApiGatewayDomain = {
     Type: 'AWS::ApiGateway::DomainName',
     Properties: {
