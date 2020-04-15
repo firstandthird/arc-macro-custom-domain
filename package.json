@@ -1,6 +1,6 @@
 {
   "name": "arc-macro-custom-domain",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "- only works on staging (for now) - can override domain with `ARC_DOMAIN`",
   "main": "index.js",
   "scripts": {
