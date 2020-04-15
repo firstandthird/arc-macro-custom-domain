@@ -8,6 +8,11 @@ module.exports = function(arc, cloudformation, stage) {
   });
   const domainName = process.env.ARC_DOMAIN || (
     stage === 'staging' ? params.stagingDomain : params.productionDomain);
+  // abort if no domainName was specified:
+  if (!domainName) {
+    console.log('WARNING: no domain name was specified for arc-macro-custom-domain!! (did you forget to set something?)');
+    return cloudformation;
+  }
   const route53Host = params.zoneName;
   const certArn = stage === 'staging' ? params.stagingCertArn : params.productionCertArn;
   const restId = Object.keys(cloudformation.Resources)[0]; //probably could make this better
