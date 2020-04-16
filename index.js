@@ -15,31 +15,57 @@ module.exports = function(arc, cloudformation, stage) {
   }
   const route53Host = params.zoneName;
   const certArn = stage === 'staging' ? params.stagingCertArn : params.productionCertArn;
-  const restId = Object.keys(cloudformation.Resources)[0]; //probably could make this better
-  cloudformation.Resources.ApiGatewayDomain = {
-    Type: 'AWS::ApiGateway::DomainName',
-    Properties: {
-      RegionalCertificateArn: certArn,
-      DomainName: domainName,
-      EndpointConfiguration: {
-        Types: ['REGIONAL']
+  let restId = Object.keys(cloudformation.Resources)[0]; //probably could make this better
+  if (params.httpAPI) {
+    restId = 'ServerlessHttpApi';
+    cloudformation.Resources.ApiGatewayDomain = {
+      Type: 'AWS::ApiGatewayV2::DomainName',
+      Properties: {
+        DomainName: domainName,
+        DomainNameConfigurations: [{
+          CertificateArn: certArn,
+          EndpointType: 'REGIONAL'
+        }]
       }
+    };
+    cloudformation.Resources.ApiGatewayMapping = {
+      Type: 'AWS::ApiGatewayV2::ApiMapping',
+      Properties: {
+        ApiId: {
+          Ref: restId,
+        },
+        DomainName: domainName,
+        Stage: {
+          Ref: `${restId}.Stage`
+        }
+      }
+    };
+  } else {
+    cloudformation.Resources.ApiGatewayDomain = {
+      Type: 'AWS::ApiGateway::DomainName',
+      Properties: {
+        RegionalCertificateArn: certArn,
+        DomainName: domainName,
+        EndpointConfiguration: {
+          Types: ['REGIONAL']
+        }
 
-    }
-  };
-  cloudformation.Resources.ApiGatewayMapping = {
-    Type: 'AWS::ApiGateway::BasePathMapping',
-    Properties: {
-      BasePath: '',
-      DomainName: domainName,
-      Stage: {
-        Ref: `${restId}.Stage`
-      },
-      RestApiId: {
-        Ref: restId
       }
-    }
-  };
+    };
+    cloudformation.Resources.ApiGatewayMapping = {
+      Type: 'AWS::ApiGateway::BasePathMapping',
+      Properties: {
+        BasePath: '',
+        DomainName: domainName,
+        Stage: {
+          Ref: `${restId}.Stage`
+        },
+        RestApiId: {
+          Ref: restId
+        }
+      }
+    };
+  }
   //route53
   cloudformation.Resources.DomainDns = {
     Type: 'AWS::Route53::RecordSetGroup',
