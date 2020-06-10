@@ -15,6 +15,10 @@ module.exports = function(arc, cloudformation, stage) {
   }
   const route53Host = params.zoneName;
   const certArn = stage === 'staging' ? params.stagingCertArn : params.productionCertArn;
+  if (process.env.ARC_DOMAIN && !certArn) {
+    console.log(`WARNING: no certificate was found for domain ${domainName} arn ${stage === 'staging' ? params.stagingCertArn : params.productionCertArn}`);
+    return cloudformation;
+  }
   let restId = Object.keys(cloudformation.Resources)[0]; //probably could make this better
   if (params.httpAPI) {
     restId = 'ServerlessHttpApi';
