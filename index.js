@@ -20,8 +20,12 @@ module.exports = function(arc, cloudformation, stage) {
     return cloudformation;
   }
   let restId = 'ServerlessHttpApi'
+  let typeKey = 'AWS::Serverless::Api';
+  if (params.httpAPI) {
+    typeKey = 'AWS::Serverless::HttpApi';
+  }
   Object.keys(cloudformation.Resources).forEach(k => {
-    if (cloudformation.Resources[k].Type === 'AWS::Serverless::Api') {
+    if (cloudformation.Resources[k].Type === typeKey) {
       restId = k;
     }
   }); //probably could make this better
