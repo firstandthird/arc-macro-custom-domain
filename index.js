@@ -19,9 +19,13 @@ module.exports = function(arc, cloudformation, stage) {
     console.log(`WARNING: no certificate was found for domain ${domainName} arn ${stage === 'staging' ? params.stagingCertArn : params.productionCertArn}`);
     return cloudformation;
   }
-  let restId = Object.keys(cloudformation.Resources)[0]; //probably could make this better
+  let restId = 'ServerlessHttpApi'
+  Object.keys(cloudformation.Resources).forEach(k => {
+    if (cloudformation.Resources[k].Type === 'AWS::Serverless::Api') {
+      restId = k;
+    }
+  }); //probably could make this better
   if (params.httpAPI) {
-    restId = 'ServerlessHttpApi';
     cloudformation.Resources.ApiGatewayDomain = {
       Type: 'AWS::ApiGatewayV2::DomainName',
       Properties: {
